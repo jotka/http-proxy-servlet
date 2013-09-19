@@ -57,10 +57,10 @@ public final class HttpProxyServlet extends HttpServlet {
         }
 
         String uri = String.format("%s%s", url.toString(), query.toString());
-        GetMethod proxyMethod = new GetMethod(uri);
+        GetMethod getMethod = new GetMethod(uri);
 
-        httpClient.executeMethod(proxyMethod);
-        write(proxyMethod.getResponseBodyAsStream(), response.getOutputStream());
+        httpClient.executeMethod(getMethod);
+        write(getMethod.getResponseBodyAsStream(), response.getOutputStream());
     }
 
     @Override
@@ -70,24 +70,24 @@ public final class HttpProxyServlet extends HttpServlet {
         Map<String, String[]> requestParameters = request.getParameterMap();
 
         String uri = url.toString();
-        PostMethod proxyMethod = new PostMethod(uri);
+        PostMethod postMethod = new PostMethod(uri);
         for (String name : requestParameters.keySet()) {
             for (String value : requestParameters.get(name)) {
-                proxyMethod.addParameter(name, value);
+                postMethod.addParameter(name, value);
             }
         }
 
-        httpClient.executeMethod(proxyMethod);
-        write(proxyMethod.getResponseBodyAsStream(), response.getOutputStream());
+        httpClient.executeMethod(postMethod);
+        write(postMethod.getResponseBodyAsStream(), response.getOutputStream());
     }
 
-    private void write(final InputStream inputStream, final OutputStream outputStream) throws IOException {
+    private void write(final InputStream inputStream, final OutputStream outStream) throws IOException {
         int b;
         while ((b = inputStream.read()) != -1) {
-            outputStream.write(b);
+            outStream.write(b);
         }
 
-        outputStream.flush();
+        outStream.flush();
     }
 
 }
