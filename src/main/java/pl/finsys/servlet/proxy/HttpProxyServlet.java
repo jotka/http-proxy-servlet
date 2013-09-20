@@ -38,20 +38,20 @@ public final class HttpProxyServlet extends HttpServlet {
         httpClient.getHostConfiguration().setHost(url.getHost());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 
         Map<String, String[]> requestParams = request.getParameterMap();
 
         StringBuilder query = new StringBuilder();
-        for (String name : requestParams.keySet()) {
-            for (String value : requestParams.get(name)) {
 
-                query.append(query.length()==0? "?" : "&");
+        for (Map.Entry<String, String[]> entry : requestParams.entrySet()) {
+            String name = URLEncoder.encode(entry.getKey(), UTF_8);
 
-                name = URLEncoder.encode(name, UTF_8);
+            for (String value : entry.getValue()) {
                 value = URLEncoder.encode(value, UTF_8);
-
+                query.append(query.length()==0? "?" : "&");
                 query.append(String.format("&%s=%s", name, value));
             }
         }
@@ -67,13 +67,14 @@ public final class HttpProxyServlet extends HttpServlet {
     @SuppressWarnings("unchecked")
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 
-        Map<String, String[]> requestParameters = request.getParameterMap();
+        Map<String, String[]> requestParams = request.getParameterMap();
 
         String uri = url.toString();
         PostMethod postMethod = new PostMethod(uri);
-        for (String name : requestParameters.keySet()) {
-            for (String value : requestParameters.get(name)) {
-                postMethod.addParameter(name, value);
+
+        for (Map.Entry<String, String[]> entry : requestParams.entrySet()) {
+            for (String value : entry.getValue()) {
+                postMethod.addParameter(entry.getKey(), value);
             }
         }
 
