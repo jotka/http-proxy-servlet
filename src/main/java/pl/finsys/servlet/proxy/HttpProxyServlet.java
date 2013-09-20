@@ -32,8 +32,8 @@ public final class HttpProxyServlet extends HttpServlet {
 
         try {
             url = new URL(config.getInitParameter(PARAM_URL));
-        } catch (MalformedURLException me) {
-            throw new ServletException("URL is invalid", me);
+        } catch (MalformedURLException exc) {
+            throw new ServletException("URL is invalid", exc);
         }
         httpClient = new HttpClient();
         httpClient.getHostConfiguration().setHost(url.getHost());
