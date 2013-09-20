@@ -3,6 +3,7 @@ package pl.finsys.servlet.proxy;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -38,25 +39,12 @@ public final class HttpProxyServlet extends HttpServlet {
         httpClient.getHostConfiguration().setHost(url.getHost());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 
-        Map<String, String[]> requestParams = request.getParameterMap();
+        String query = getRequestParamsAsString(request);
 
-        StringBuilder query = new StringBuilder();
-
-        for (Map.Entry<String, String[]> entry : requestParams.entrySet()) {
-            String name = URLEncoder.encode(entry.getKey(), UTF_8);
-
-            for (String value : entry.getValue()) {
-                value = URLEncoder.encode(value, UTF_8);
-                query.append(query.length()==0? "?" : "&");
-                query.append(String.format("&%s=%s", name, value));
-            }
-        }
-
-        String uri = String.format("%s%s", url.toString(), query.toString());
+        String uri = String.format("%s%s", url.toString(), query);
         GetMethod getMethod = new GetMethod(uri);
 
         httpClient.executeMethod(getMethod);
@@ -89,6 +77,24 @@ public final class HttpProxyServlet extends HttpServlet {
         }
 
         outStream.flush();
+    }
+
+    @SuppressWarnings("unchecked")
+    private String getRequestParamsAsString(HttpServletRequest request) throws UnsupportedEncodingException {
+        Map<String, String[]> requestParams = request.getParameterMap();
+
+        StringBuilder query = new StringBuilder();
+
+        for (Map.Entry<String, String[]> entry : requestParams.entrySet()) {
+            String name = URLEncoder.encode(entry.getKey(), UTF_8);
+
+            for (String value : entry.getValue()) {
+                value = URLEncoder.encode(value, UTF_8);
+                query.append(query.length()==0? "?" : "&");
+                query.append(String.format("&%s=%s", name, value));
+            }
+        }
+        return query.toString();
     }
 
 }
